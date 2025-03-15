@@ -1,5 +1,6 @@
 #include "dijkstras.h"
 #include <algorithm>
+using namespace std;
 
 vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& previous)
 {
@@ -7,18 +8,14 @@ vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& prev
     vector<int> dist(n, INF);
     dist[source] = 0;
     previous[source] = -1;
-
     using Pair = pair<int,int>;
     priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
     pq.push({0, source});
-
     vector<bool> visited(n, false);
-    while(!pq.empty()) {
+    while (!pq.empty()) {
         auto [curDist, u] = pq.top();
         pq.pop();
-        if (visited[u]) {
-            continue;
-        }
+        if (visited[u]) continue;
         visited[u] = true;
         for (auto &e : G[u]) {
             int v = e.dst;
@@ -30,13 +27,10 @@ vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& prev
             }
         }
     }
-
     return dist;
 }
 
-vector<int> extract_shortest_path(const vector<int>& distances,
-                                  const vector<int>& previous,
-                                  int destination)
+vector<int> extract_shortest_path(const vector<int>& distances, const vector<int>& previous, int destination)
 {
     vector<int> path;
     int cur = destination;
@@ -48,12 +42,10 @@ vector<int> extract_shortest_path(const vector<int>& distances,
     return path;
 }
 
-// Prints the path plus its total cost.
 void print_path(const vector<int>& path, int total)
 {
     for (int i = 0; i < (int)path.size(); i++) {
-        cout << path[i];
-        if (i < (int)path.size() - 1) cout << " ";
+        cout << path[i] << " ";
     }
-    cout << "\nTotal cost is " << total << endl;
+    cout << "\nTotal cost is " << total << "\n";
 }
