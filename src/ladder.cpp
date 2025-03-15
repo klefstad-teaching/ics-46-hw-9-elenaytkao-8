@@ -68,6 +68,7 @@ static vector<string> generate_neighbors(const string &word, const set<string> &
             }
         }
     }
+    sort(neighbors.begin(), neighbors.end());
     return neighbors;
 }
 
