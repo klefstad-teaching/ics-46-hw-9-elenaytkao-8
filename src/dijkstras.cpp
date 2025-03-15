@@ -1,55 +1,59 @@
-#include <vector>
-#include <limits>
-#include <queue>
+#include "dijkstras.h"
 #include <algorithm>
-using namespace std;
 
-struct Node {
-    int vertex;
-    int weight;
-};
+vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& previous)
+{
+    int n = G.numVertices;
+    vector<int> dist(n, INF);
+    dist[source] = 0;
+    previous[source] = -1;
 
-struct Graph {
-    vector<vector<Node>> adjacencyList;
-    vector<int> distance;
-    vector<int> previous;
-    vector<bool> visited;
-};
+    using Pair = pair<int,int>;
+    priority_queue<Pair, vector<Pair>, greater<Pair>> pq;
+    pq.push({0, source});
 
-void dijkstra(Graph &g, int source) {
-    int n = g.adjacencyList.size();
-    g.distance.assign(n, numeric_limits<int>::max());
-    g.previous.assign(n, -1);
-    g.visited.assign(n, false);
-    auto cmp = [](const Node &a, const Node &b){ return a.weight > b.weight; };
-    priority_queue<Node, vector<Node>, decltype(cmp)> pq(cmp);
-    g.distance[source] = 0;
-    pq.push({source, 0});
+    vector<bool> visited(n, false);
     while(!pq.empty()) {
-        Node current = pq.top();
+        auto [curDist, u] = pq.top();
         pq.pop();
-        int u = current.vertex;
-        if(g.visited[u]) continue;
-        g.visited[u] = true;
-        for(const auto &neighbor : g.adjacencyList[u]) {
-            int v = neighbor.vertex;
-            int w = neighbor.weight;
-            if(!g.visited[v] && g.distance[u] + w < g.distance[v]) {
-                g.distance[v] = g.distance[u] + w;
-                g.previous[v] = u;
-                pq.push({v, g.distance[v]});
+        if (visited[u]) {
+            continue;
+        }
+        visited[u] = true;
+        for (auto &e : G[u]) {
+            int v = e.dst;
+            int w = e.weight;
+            if (!visited[v] && dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                previous[v] = u;
+                pq.push({dist[v], v});
             }
         }
     }
+
+    return dist;
 }
 
-vector<int> buildPath(const Graph &g, int target) {
+vector<int> extract_shortest_path(const vector<int>& distances,
+                                  const vector<int>& previous,
+                                  int destination)
+{
     vector<int> path;
-    int cur = target;
-    while(cur != -1) {
+    int cur = destination;
+    while (cur != -1) {
         path.push_back(cur);
-        cur = g.previous[cur];
+        cur = previous[cur];
     }
     reverse(path.begin(), path.end());
     return path;
+}
+
+// Prints the path plus its total cost.
+void print_path(const vector<int>& path, int total)
+{
+    for (int i = 0; i < (int)path.size(); i++) {
+        cout << path[i];
+        if (i < (int)path.size() - 1) cout << " ";
+    }
+    cout << "\nTotal cost is " << total << endl;
 }
